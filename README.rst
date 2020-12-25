@@ -26,13 +26,6 @@ redis-cli monitor | python redismirror.py
 ```
 
 
-## Extra
-To Generate sample data for your test use the below command:
-```Bash
-cd tests/Generator/;bash SampleDataInserter.sh
-```
-
-
 The following commands are also not logged:
 
 * AUTH
