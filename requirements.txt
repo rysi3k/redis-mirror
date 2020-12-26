@@ -1,1 +1,6 @@
+cement==3.0.4
 redis==3.5.3
+redis-py-cluster==2.1.0
+jinja2
+pyyaml
+colorlog
