@@ -46,6 +46,9 @@ def hsetFunc(rLine, connection):
 def getSTDOUT(connection):
     if not sys.stdin.isatty():
         input_stream = sys.stdin
+    else:
+        print("There is no stdin, check help for more info. exit 1")
+        sys.exit(1)
     for line in input_stream:
         try:
             tmpLine = line.split(" ", 5)
@@ -68,7 +71,7 @@ class Base(Controller):
         description = "Mirror Redis Traffic to another redis node"
 
         # text displayed at the bottom of --help output
-        epilog = "Usage: redismirror run"
+        epilog = "Usage: redis-cli monitor | redismirror run"
 
         # controller level arguments. ex: 'redismirror --version'
         arguments = [

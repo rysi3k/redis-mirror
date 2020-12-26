@@ -1,4 +1,6 @@
 # Mirror Redis Traffic to another redis node
+<img src="https://raw.githubusercontent.com/alivx/redis-mirror/master/Generator/redis-mirror-logo.jpg" alt="logo" style="zoom:50%;" />
+
 
 # redis-mirror
 Realtime Redis Traffic Mirror to another instance, this script read the STDOUT from `redis-cli monitor` command and mirror keys to another instance.
@@ -7,6 +9,7 @@ Realtime Redis Traffic Mirror to another instance, this script read the STDOUT f
 In some production/development cases, you need to mirror Redis traffic to another node in order to do some investigation or debugging.
 * This script does not set `TTL` to mirrored key since you need it for debugging.
 * For now, this script support `set`,`hset` I will add the other command soon, or if you have a time, please create a pull request :). 
+
 
 
 ## TO DO:
@@ -22,6 +25,28 @@ In some production/development cases, you need to mirror Redis traffic to anothe
 redis-cli monitor | python redismirror.py 
 ```
 
+## Exmaple output:
+```
+$redis-cli monitor | redismirror  run
+Init connection redis..
+Skip line | OK
+
+Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_uuid_ran
+Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_date_ran
+Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_date2_ran
+Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_json_ran
+Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_image_ran
+Key mirroed sucessfully | 1609021903_1_uuid_ran
+Key mirroed sucessfully | 1609021903_1_date_ran
+Key mirroed sucessfully | 1609021903_1_date2_ran
+Key mirroed sucessfully | 1609021903_1_json_ran
+Key mirroed sucessfully | 1609021903_1_image_ran
+```
+
+## Installation using pypi
+```
+pip install redismirror
+```
 
 ## Installation
 
