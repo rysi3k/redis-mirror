@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-VERSION = get_version()
 
 f = open("README.md", "r")
 LONG_DESCRIPTION = f.read()
@@ -27,8 +26,9 @@ setup(
     packages=find_packages(exclude=["ez_setup", "tests*"]),
     package_data={"redismirror": ["templates/*"]},
     include_package_data=True,
+    keywords=["traffic", "mirror", "redis", "migration", "cli"],
     entry_points="""
         [console_scripts]
-        redismirror = run:main
+        redismirror = redismirror.main:main
     """,
 )
