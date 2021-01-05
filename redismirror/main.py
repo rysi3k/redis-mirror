@@ -3,6 +3,7 @@ import sys
 import redis
 import re
 from redisCommand import *
+
 # TO DO:
 # 1. Add timer to mirror process
 # 2. Add auth option
@@ -36,8 +37,10 @@ def makeConnection(host, port, db, auth):
     Returns:
         connection: connection object for redis
     """
-
-    pool = redis.ConnectionPool(host=host, port=port, db=db)
+    if auth:
+        pool = redis.ConnectionPool(host=host, port=port, db=db, password=auth)
+    else:
+        pool = redis.ConnectionPool(host=host, port=port, db=db)
     r = redis.StrictRedis(connection_pool=pool)
     try:
         r.ping()
