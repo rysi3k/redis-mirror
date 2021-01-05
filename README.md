@@ -3,20 +3,20 @@
 
 
 # redis-mirror
-Realtime Redis Traffic Mirror to another instance, this script read the STDOUT from `redis-cli monitor` command and mirror keys to another instance.
+Realtime Redis Traffic Mirror to another instance, this script reads the STDOUT from `redis-cli monitor` command and mirrors the keys to another instance.
 
 ## Use Case/Note
 In some production/development cases, you need to mirror Redis traffic to another node in order to do some investigation or debugging.
 * This script does not set `TTL` to mirrored key since you need it for debugging.
-* For now, this script support `set`,`hset` I will add the other command soon, or if you have a time, please create a pull request :). 
+* For now, this script supports `set`,`hset`. I will add the other command soon, or if you have the time, please create a pull request :). 
 
 
 
 ## TO DO:
 1. Add the most common redis command to mirror script.
 2. Add TTL as an option in mirrored redis instance, plus add an option to expand the origin `TTL`.
-3. Support cluster to a single redis instance or Or vice versa.
-4. Add more option such as `DB` Name, `Host`, `Port`...etc.
+3. Support cluster to a single redis instance or vice versa.
+4. Add more option such as `DB` Name, `Host`, `Port`, etc.
 5. Improve mirrored value without any modification.
 6. Add option to dump all keys name to file for further analysis.
 
