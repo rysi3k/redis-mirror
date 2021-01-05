@@ -25,9 +25,6 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        GIT_TAG=`echo $(git describe --tags --abbrev=0)`
-        sed -i "s#000#${{ GIT_TAG }}#g" setup.py
-        echo $(grep version setup.py)
-        echo $GIT_TAG
+        echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" > VERSION
         python setup.py sdist bdist_wheel
         twine upload dist/*
