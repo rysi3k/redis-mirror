@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-from redismirror.core.version import get_version
 
 VERSION = get_version()
 
@@ -7,9 +6,11 @@ f = open("README.md", "r")
 LONG_DESCRIPTION = f.read()
 f.close()
 
-with open('requirements.txt') as f:
+with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
+with open("VERSION") as f:
+    VERSION = f.read().splitlines()
 
 setup(
     name="redismirror",
@@ -28,6 +29,6 @@ setup(
     include_package_data=True,
     entry_points="""
         [console_scripts]
-        redismirror = redismirror.main:main
+        redismirror = run:main
     """,
 )
