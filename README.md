@@ -20,14 +20,30 @@ In some production/development cases, you need to mirror Redis traffic to anothe
 5. Improve mirrored value without any modification.
 6. Add option to dump all keys name to file for further analysis.
 
+## Option
+
+```
+Options:
+  --host TEXT        Destination redis host/IP.
+  --port INTEGER     Destination redis port.
+  --db INTEGER       Destination redis DB.
+  --auth TEXT        Destination redis auth info.
+  --counter INTEGER  number of keys to mirror.
+  --help             Show this message and exit.
+```
+
+
 ## Useages
 ```Bash
-redis-cli monitor | python redismirror.py 
+redis-cli monitor | redismirror  --port 6377
+
+#Exmaple 2
+redis-cli monitor |  redismirror  --host localhost --port 6377  --counter 100
 ```
 
 ## Exmaple output:
 ```
-$redis-cli monitor | redismirror  run
+$ redis-cli monitor | redismirror  --host localhost --port 6377
 Init connection redis..
 Skip line | OK
 

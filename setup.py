@@ -8,12 +8,10 @@ f.close()
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
-with open("VERSION") as f:
-    VERSION = f.read().splitlines()
 
 setup(
     name="redismirror",
-    version=VERSION,
+    version="0.1.0",
     description="Mirror Redis Traffic to another redis node",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",

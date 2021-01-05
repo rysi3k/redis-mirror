@@ -3,24 +3,33 @@ import sys
 import redis
 from time import sleep
 import re
-from redisCommand import *
+from redismirror.redisCommand import *
+import threading
 
 # TO DO:
-# 1. Add timer to mirror process
 # 3. Support to split it to multi node
-# 4. Support all redis command
-# 5. Add number of item to mirror limit
+# 4. Support most of redis command
 
 
 @click.command()
-@click.option("--host", type=str, default="127.0.0.1", help="Destination redis host/IP.")
+@click.option(
+    "--host", type=str, default="127.0.0.1", help="Destination redis host/IP."
+)
 @click.option("--port", type=int, default=6379, help="Destination redis port.")
-@click.option("--db", type=int, default="0", required=False, help="Destination redis DB.")
-@click.option("--auth", type=str, required=False, help="Destination redis auth info.")
-@click.option("--timer", type=int, required=False, help="add running timer in seconds.")
-def main(host, port, db, auth, timer):
+@click.option(
+    "--db", type=int, default="0", required=False, help="Destination redis DB."
+)
+@click.option(
+    "--auth",
+    default=None,
+    type=str,
+    required=False,
+    help="Destination redis auth info.",
+)
+@click.option("--counter", type=int, required=False, help="number of keys to mirror.")
+def main(host, port, db, auth, counter):
     r = makeConnection(host, port, db, auth)
-    getSTDOUT(r,timer)
+    getSTDOUT(r, counter)
 
 
 def makeConnection(host, port, db, auth):
@@ -52,7 +61,7 @@ def makeConnection(host, port, db, auth):
     return r
 
 
-def getSTDOUT(connection,timer):
+def getSTDOUT(connection, counter):
     if not sys.stdin.isatty():
         input_stream = sys.stdin
     else:
@@ -62,8 +71,7 @@ def getSTDOUT(connection,timer):
     for line in input_stream:
         try:
             timerCounter = timerCounter + 1
-            sleep(1)
-            if not timerCounter == timer:
+            if not timerCounter == counter:
                 tmpLine = line.split(" ", 5)
                 keyType = str(tmpLine[3]).strip('"')
                 if keyType == "set":
@@ -73,7 +81,7 @@ def getSTDOUT(connection,timer):
                 else:
                     print(f"key type ({keyType}) if not supported yet.")
             else:
-                print(f"Finished at second {timerCounter}")
+                print(f"Finished at count {timerCounter}")
                 sys.exit(0)
         except Exception as e:
             print(f"Skip line({line[:30]})")
