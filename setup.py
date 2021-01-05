@@ -11,7 +11,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="redismirror",
-    version="0.1.0",
+    version="000",
     description="Mirror Redis Traffic to another redis node",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
