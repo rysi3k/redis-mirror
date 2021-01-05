@@ -25,7 +25,8 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        sed -i "s#0.1.0#${{ env.RELEASE_VERSION }}#g" setup.py
-        grep version setup.py
+        sed -i "s#0.1.0#${{ RELEASE_VERSION }}#g" setup.py
+        echo $(grep version setup.py)
+        echo $RELEASE_VERSION
         python setup.py sdist bdist_wheel
         twine upload dist/*
