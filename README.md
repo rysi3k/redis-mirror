@@ -8,55 +8,69 @@ Realtime Redis Traffic Mirror to another instance, this script reads the STDOUT 
 ## Use Case/Note
 In some production/development cases, you need to mirror Redis traffic to another node in order to do some investigation or debugging.
 * This script does not set `TTL` to mirrored key since you need it for debugging.
-* For now, this script supports `set`,`hset`. I will add the other command soon, or if you have the time, please create a pull request :). 
+* The script support all command since it's simply dump and restore the key as is.
 
 
 
 ## TO DO:
-1. Add the most common redis command to mirror script.
-2. Add TTL as an option in mirrored redis instance, plus add an option to expand the origin `TTL`.
-3. Support cluster to a single redis instance or vice versa.
-4. Add more option such as `DB` Name, `Host`, `Port`, etc.
-5. Improve mirrored value without any modification.
-6. Add option to dump all keys name to file for further analysis.
+1. Add TTL as an option in mirrored redis instance, plus add an option to expand the origin `TTL`.
+2. Support cluster to a single redis instance or vice versa.
+3. Add option to dump all keys name to file for further analysis.
+4. Add option to get all keys from source and migrate the keys to another redis instance.
 
 ## Option
 
 ```
+redismirror --help
+Usage: redismirror [OPTIONS]
+
+  The main function
+
+  Args:     shost (str): source redis host     sport (int): source redis
+  port     sdb (int): source redis database number     sauth (str): source
+  redis auth info     dhost (str): destination redis host     dport (int):
+  destination redis port     ddb (int): destination redis database number
+  dauth (str): destination redis auth info     limit (int): number of
+  iterations to stop script on it     replace (bool): replace key if exists
+
 Options:
-  --host TEXT        Destination redis host/IP.
-  --port INTEGER     Destination redis port.
-  --db INTEGER       Destination redis DB.
-  --auth TEXT        Destination redis auth info.
-  --counter INTEGER  number of keys to mirror.
-  --help             Show this message and exit.
+  --shost TEXT     Source redis host/IP.
+  --sport INTEGER  Source redis port.
+  --sdb INTEGER    Source redis DB.
+  --sauth TEXT     Source redis auth info.
+  --dhost TEXT     Destination redis host/IP.
+  --dport INTEGER  Destination redis port.
+  --ddb INTEGER    Destination redis DB.
+  --dauth TEXT     Destination redis auth info.
+  --limit INTEGER  Stop mirror process at limit X.
+  --replace        Replace key if exists.
+  --help           Show this message and exit.
 ```
 
 
 ## Useages
 ```Bash
-redis-cli monitor | redismirror  --port 6377
+redis-cli monitor | redismirror  --sport 6377 --sport 6379
 
 #Exmaple 2
-redis-cli monitor |  redismirror  --host localhost --port 6377  --counter 100
+redis-cli monitor |  redismirror  --shost localhost --dport 6377  --linit 100
 ```
 
 ## Exmaple output:
 ```
-$ redis-cli monitor | redismirror  --host localhost --port 6377
-Init connection redis..
-Skip line | OK
-
-Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_uuid_ran
-Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_date_ran
-Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_date2_ran
-Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_json_ran
-Key mirroed sucessfully | 05439891-2f59-45c3-931d-4918d3aaf121_1_image_ran
-Key mirroed sucessfully | 1609021903_1_uuid_ran
-Key mirroed sucessfully | 1609021903_1_date_ran
-Key mirroed sucessfully | 1609021903_1_date2_ran
-Key mirroed sucessfully | 1609021903_1_json_ran
-Key mirroed sucessfully | 1609021903_1_image_ran
+$ redis-cli monitor | redismirror  --shost localhost --dhost localhost --sport 6379 --dport 6377 --replace
+Redis is connected, Host; localhost, Port:6379, DB:0
+Redis is connected, Host; localhost, Port:6377, DB:0
+Mirrored key | myhash
+Mirrored key | myhash
+Mirrored key | c75fdd21-9a50-4b43-87e6-44c86a8d1f78_1_uuid_ran
+Mirrored key | c75fdd21-9a50-4b43-87e6-44c86a8d1f78_1_date_ran
+Mirrored key | c75fdd21-9a50-4b43-87e6-44c86a8d1f78_1_date2_ran
+Mirrored key | c75fdd21-9a50-4b43-87e6-44c86a8d1f78_1_json_ran
+Mirrored key | c75fdd21-9a50-4b43-87e6-44c86a8d1f78_1_image_ran
+Mirrored key | 1609966494_1_uuid_ran
+Mirrored key | 1609966494_1_date_ran
+Mirrored key | 1609966494_1_date2_ran
 ```
 
 ## Installation using pypi

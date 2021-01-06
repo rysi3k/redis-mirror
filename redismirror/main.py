@@ -3,12 +3,7 @@ import sys
 import redis
 from time import sleep
 import re
-from redismirror.redisCommand import *
 import threading
-
-# TO DO:
-# 3. Support to split it to multi node
-# 4. Support most of redis command
 
 
 @click.command()
@@ -33,7 +28,10 @@ import threading
     help="Destination redis auth info.",
 )
 @click.option("--limit", type=int, help="Stop mirror process at limit X.")
-def main(shost, sport, sdb, sauth, dhost, dport, ddb, dauth, limit):
+@click.option(
+    "--replace", type=bool, is_flag=True, default=False, help="Replace key if exists."
+)
+def main(shost, sport, sdb, sauth, dhost, dport, ddb, dauth, limit, replace):
     """The main function
 
     Args:
@@ -46,10 +44,11 @@ def main(shost, sport, sdb, sauth, dhost, dport, ddb, dauth, limit):
         ddb (int): destination redis database number
         dauth (str): destination redis auth info
         limit (int): number of iterations to stop script on it
+        replace (bool): replace key if exists
     """
     s = makeConnection(shost, sport, sdb, sauth)
     d = makeConnection(dhost, dport, ddb, dauth)
-    getSTDOUT(s, d, limit)
+    getSTDOUT(s, d, limit, replace)
 
 
 def makeConnection(host, port, db, auth):
@@ -78,7 +77,6 @@ def makeConnection(host, port, db, auth):
     except Exception as e:
         print(f"Redis connection error ({e})")
         sys.exit(1)
-    r.restore
     return r
 
 
@@ -113,11 +111,10 @@ def stdinStream():
     else:
         print("There is no stdin, check help for more info. exit 1")
         sys.exit(1)
-    print(input_stream)
     return input_stream
 
 
-def getSTDOUT(sourceConnection, destinationConnection, limit):
+def getSTDOUT(sourceConnection, destinationConnection, limit, replace):
     """Read STDIN
        dump from source redis
        restore key to destination redis
@@ -126,6 +123,7 @@ def getSTDOUT(sourceConnection, destinationConnection, limit):
         sourceConnection (connection): redis source connection object
         destinationConnection (connection): redis destination connection object
         limit (int): number to stop mirror process
+        replace (bool): replace key if exists in the destination redis
     """
     counter = 0
     for line in stdinStream():
@@ -134,7 +132,7 @@ def getSTDOUT(sourceConnection, destinationConnection, limit):
             counter = counter + 1
             data = sourceConnection.dump(key)
             try:
-                destinationConnection.restore(key, 0, data)
+                destinationConnection.restore(key, 0, data, replace=replace)
                 print(f"Mirrored key | {key}")
             except Exception as e:
                 print(f"Skip {key} becouse of  {e}")
