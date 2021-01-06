@@ -12,24 +12,44 @@ import threading
 
 
 @click.command()
+@click.option("--shost", type=str, default="127.0.0.1", help="Source redis host/IP.")
+@click.option("--sport", type=int, default=6379, help="Source redis port.")
+@click.option("--sdb", type=int, default="0", required=False, help="Source redis DB.")
 @click.option(
-    "--host", type=str, default="127.0.0.1", help="Destination redis host/IP."
+    "--sauth", default=None, type=str, required=False, help="Source redis auth info."
 )
-@click.option("--port", type=int, default=6379, help="Destination redis port.")
 @click.option(
-    "--db", type=int, default="0", required=False, help="Destination redis DB."
+    "--dhost", type=str, default="127.0.0.1", help="Destination redis host/IP."
+)
+@click.option("--dport", type=int, default=6377, help="Destination redis port.")
+@click.option(
+    "--ddb", type=int, default="0", required=False, help="Destination redis DB."
 )
 @click.option(
-    "--auth",
+    "--dauth",
     default=None,
     type=str,
     required=False,
     help="Destination redis auth info.",
 )
-@click.option("--counter", type=int, required=False, help="number of keys to mirror.")
-def main(host, port, db, auth, counter):
-    r = makeConnection(host, port, db, auth)
-    getSTDOUT(r, counter)
+@click.option("--limit", type=int, help="Stop mirror process at limit X.")
+def main(shost, sport, sdb, sauth, dhost, dport, ddb, dauth, limit):
+    """The main function
+
+    Args:
+        shost (str): source redis host
+        sport (int): source redis port
+        sdb (int): source redis database number
+        sauth (str): source redis auth info
+        dhost (str): destination redis host
+        dport (int): destination redis port
+        ddb (int): destination redis database number
+        dauth (str): destination redis auth info
+        limit (int): number of iterations to stop script on it
+    """
+    s = makeConnection(shost, sport, sdb, sauth)
+    d = makeConnection(dhost, dport, ddb, dauth)
+    getSTDOUT(s, d, limit)
 
 
 def makeConnection(host, port, db, auth):
@@ -54,37 +74,73 @@ def makeConnection(host, port, db, auth):
     r = redis.StrictRedis(connection_pool=pool)
     try:
         r.ping()
-        print("Redis is connected..")
+        print(f"Redis is connected, Host; {host}, Port:{port}, DB:{db}")
     except Exception as e:
         print(f"Redis connection error ({e})")
         sys.exit(1)
+    r.restore
     return r
 
 
-def getSTDOUT(connection, counter):
+def split(delimiters, data, maxsplit=0):
+    """Split input redis monitor data stram and get the key name
+
+    Args:
+        delimiters str: [description]
+        data str: [description]
+        maxsplit (int, optional): max split length. Defaults to 0.
+
+    Returns:
+        str: redis key name
+    """
+    try:
+        regexPattern = "|".join(map(re.escape, delimiters))
+        data = re.split(regexPattern, data, maxsplit)
+        data = data[3]
+        return data
+    except Exception as e:
+        return None
+
+
+def stdinStream():
+    """Get STDIN
+
+    Returns:
+        _io.TextIOWrapper: STDIN stream
+    """
     if not sys.stdin.isatty():
         input_stream = sys.stdin
     else:
         print("There is no stdin, check help for more info. exit 1")
         sys.exit(1)
-    timerCounter = 0
-    for line in input_stream:
-        try:
-            timerCounter = timerCounter + 1
-            if not timerCounter == counter:
-                tmpLine = line.split(" ", 5)
-                keyType = str(tmpLine[3]).strip('"')
-                if keyType == "set":
-                    setFunc(line, connection)
-                elif keyType == "hset":
-                    hsetFunc(line, connection)
-                else:
-                    print(f"key type ({keyType}) if not supported yet.")
-            else:
-                print(f"Finished at count {timerCounter}")
+    print(input_stream)
+    return input_stream
+
+
+def getSTDOUT(sourceConnection, destinationConnection, limit):
+    """Read STDIN
+       dump from source redis
+       restore key to destination redis
+
+    Args:
+        sourceConnection (connection): redis source connection object
+        destinationConnection (connection): redis destination connection object
+        limit (int): number to stop mirror process
+    """
+    counter = 0
+    for line in stdinStream():
+        key = split('"', line, 5)
+        if not key == None and '] "DUMP" "' not in line:
+            counter = counter + 1
+            data = sourceConnection.dump(key)
+            try:
+                destinationConnection.restore(key, 0, data)
+                print(f"Mirrored key | {key}")
+            except Exception as e:
+                print(f"Skip {key} becouse of  {e}")
+            if counter == limit:
+                print(f"Limit reached {counter}")
                 sys.exit(0)
-        except Exception as e:
-            print(f"Skip line({line[:30]})")
 
 
 if __name__ == "__main__":
