@@ -187,3 +187,14 @@ GET: 45330.91 requests per second
 INCR: 41771.09 requests per second
 ```
 In this particular case, running a single MONITOR client can reduce the throughput by more than 50%. Running more MONITOR clients will reduce throughput even more.
+
+
+License
+-------
+
+ GNU GENERAL PUBLIC LICENSE
+
+Author Information
+------------------
+
+The tool was originally developed by [Ali Saleh Baker](https://www.linkedin.com/in/alivx/).
