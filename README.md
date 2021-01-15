@@ -50,7 +50,7 @@ Options:
 
 ## Useages
 ```Bash
-redis-cli monitor | redismirror  --sport 6377 --sport 6379
+redis-cli monitor | redismirror  --sport 6379 --shost localhost  --shost 10.0.1.51 --sport 6379
 
 #Exmaple 2
 redis-cli monitor |  redismirror  --shost localhost --dport 6377  --linit 100
