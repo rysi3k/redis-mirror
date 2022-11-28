@@ -131,6 +131,11 @@ def getSTDOUT(sourceConnection, destinationConnection, limit, replace):
         if not key == None and '] "DUMP" "' not in line:
             counter = counter + 1
             data = sourceConnection.dump(key)
+            if data == None:
+                print(f"Deleted key | {key}")
+                destinationConnection.delete(key)
+                continue
+                
             try:
                 destinationConnection.restore(key, 0, data, replace=replace)
                 print(f"Mirrored key | {key}")
